@@ -634,11 +634,27 @@ function update_cnt(row,seg){
 }
 
 /* ── PERSISTENCIA EN LOCALSTORAGE ── */
+/* Guarda texto + autor + clase como JSON estructurado (no innerHTML crudo)
+   para evitar diferencias de serialización entre navegadores. */
+function extract_notes(w){
+  return Array.from(w.querySelectorAll('.sticky')).map(sticky=>{
+    const clone=sticky.cloneNode(true);
+    clone.querySelector('.sticky-actions')?.remove();
+    const authorEl=clone.querySelector('.s-author');
+    const author=authorEl ? authorEl.innerText.trim() : '';
+    authorEl?.remove();
+    clone.querySelectorAll('br').forEach(br=>br.replaceWith('\n'));
+    const text=clone.innerText.replace(/\n{3,}/g,'\n\n').trim();
+    const cls=Array.from(sticky.classList).find(c=>c.startsWith('s-'))||'s-new';
+    return {cls, text, author};
+  });
+}
+
 function save_state(){
   const state={};
   ROWS.forEach(r=>SEGS.forEach(s=>{
     const w=document.getElementById(`notes-${r}-${s}`);
-    if(w) state[`${r}-${s}`]=w.innerHTML;
+    if(w) state[`${r}-${s}`]=extract_notes(w);
   }));
   try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
   catch(e){ console.warn('localStorage no disponible',e); }
@@ -650,10 +666,16 @@ function load_state(){
   if(!raw) return;
   try{
     const state=JSON.parse(raw);
-    Object.entries(state).forEach(([key,html])=>{
+    Object.entries(state).forEach(([key,notes])=>{
       const w=document.getElementById(`notes-${key}`);
       if(!w) return;
-      w.innerHTML=html;
+      w.innerHTML='';
+      notes.forEach(({cls,text,author})=>{
+        const d=document.createElement('div');
+        d.className=`sticky ${cls}`;
+        d.innerHTML=build_html(text, author);
+        w.appendChild(d);
+      });
       const [r,s]=key.split('-');
       update_cnt(r,s);
     });
