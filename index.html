@@ -120,7 +120,24 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
 .modal textarea{height:100px;resize:vertical;}
 .modal input{margin-top:0;}
 .modal .field{margin-bottom:10px;}
-.modal textarea:focus,.modal input:focus{border-color:#0f3460;}
+.modal textarea:focus,.modal input:focus,.modal select:focus{border-color:#0f3460;}
+.modal select{
+  width:100%;border:1px solid #ddd;border-radius:4px;
+  padding:8px;font-size:12px;font-family:inherit;outline:none;
+  background:white;cursor:pointer;transition:border-color .15s;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23999' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  padding-right:28px;
+}
+.modal select option[value=""]{color:#aaa;}
+.field-error textarea,.field-error select,.field-error input{
+  border-color:#E53935!important;
+  animation:shake .3s ease;
+}
+.field-error .err-msg{display:block;}
+.err-msg{display:none;font-size:9px;color:#E53935;margin-top:3px;font-weight:600;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 .modal-ft{margin-top:14px;display:flex;gap:8px;justify-content:flex-end;align-items:center;}
 .modal-hint{font-size:9px;color:#bbb;margin-right:auto;}
 
@@ -405,9 +422,32 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
       <label>Propuesta</label>
       <textarea id="note_text" placeholder="Escribe tu propuesta aquí..."></textarea>
     </div>
-    <div class="field">
-      <label>Tu nombre y área</label>
-      <input type="text" id="note_author" placeholder="ej: Daniela Godoy · Marketing">
+    <div class="field" id="author_field">
+      <label>Responsable <span style="color:#E53935;">*</span></label>
+      <select id="note_author" onchange="on_author_change()">
+        <option value="">— Selecciona responsable —</option>
+        <optgroup label="Equipo Squad">
+          <option value="Equipo Squad">Equipo Squad</option>
+        </optgroup>
+        <optgroup label="Usuarios">
+          <option value="Andres Korenblit">Andres Korenblit</option>
+          <option value="Claudia Heredia">Claudia Heredia</option>
+          <option value="Diego Tomas Villegas Gutierrez">Diego Tomas Villegas Gutierrez</option>
+          <option value="Felipe Esteban Arroyo Ceballos">Felipe Esteban Arroyo Ceballos</option>
+          <option value="Gonzalo Cortes">Gonzalo Cortes</option>
+          <option value="Ivan Balaguera">Ivan Balaguera</option>
+          <option value="Kelvin Noriega Algarin">Kelvin Noriega Algarin</option>
+          <option value="Matías Felipe Romero Diez">Matías Felipe Romero Diez</option>
+          <option value="Maryorin Vivas Macedo">Maryorin Vivas Macedo</option>
+          <option value="Yerko Pino">Yerko Pino</option>
+        </optgroup>
+        <option value="__otro__">✏ Otro (escribir)...</option>
+      </select>
+      <span class="err-msg">⚠ Debes seleccionar un responsable para guardar.</span>
+    </div>
+    <div class="field" id="otro_field" style="display:none;">
+      <label>Especifica nombre y área</label>
+      <input type="text" id="note_author_otro" placeholder="ej: Pedro Sánchez · Postventa">
     </div>
     <div class="modal-ft">
       <span class="modal-hint">Ctrl+Enter para guardar · Esc para cerrar</span>
@@ -422,16 +462,28 @@ const ROW_LABELS={politica:'Política Comercial',marketing:'Marketing y Exp. Cli
 const SEG_LABELS={vip:'VIP Usados',oro:'ORO Usados',plata:'PLATA Usados',bronce:'BRONCE Usados'};
 let _row=null, _seg=null, _editNote=null;
 
+/* ── LISTA DE USUARIOS (debe coincidir con las options del select) ── */
+const USER_OPTIONS=[
+  'Equipo Squad',
+  'Andres Korenblit','Claudia Heredia','Diego Tomas Villegas Gutierrez',
+  'Felipe Esteban Arroyo Ceballos','Gonzalo Cortes','Ivan Balaguera',
+  'Kelvin Noriega Algarin','Matías Felipe Romero Diez',
+  'Maryorin Vivas Macedo','Yerko Pino'
+];
+
 /* ── ABRIR MODAL: nueva tarjeta ── */
 function open_modal(row,seg){
   _row=row; _seg=seg; _editNote=null;
   document.getElementById('modal_badge').textContent='+ Nueva tarjeta';
   document.getElementById('modal_badge').className='modal-mode-badge badge-add';
   document.getElementById('modal_title').textContent=`Nueva propuesta — ${ROW_LABELS[row]} · ${SEG_LABELS[seg]}`;
-  document.getElementById('modal_sub').textContent='Escribe tu idea y tu nombre para que el equipo sepa quién la propone.';
+  document.getElementById('modal_sub').textContent='Escribe tu idea y selecciona el responsable.';
   document.getElementById('save_btn').textContent='Agregar ✓';
   document.getElementById('note_text').value='';
   document.getElementById('note_author').value='';
+  document.getElementById('note_author_otro').value='';
+  clear_errors();
+  set_otro_visible(false);
   document.getElementById('modal_bg').classList.add('open');
   document.getElementById('note_text').focus();
 }
@@ -442,11 +494,11 @@ function open_edit(btn){
   const cell=sticky.closest('.board-cell');
   _row=cell.dataset.row; _seg=cell.dataset.seg; _editNote=sticky;
 
-  /* extraer autor */
   const authorEl=sticky.querySelector('.s-author');
-  const authorText=authorEl ? authorEl.innerText.trim() : '';
+  const rawAuthor=authorEl ? authorEl.innerText.trim() : '';
+  /* quitar emoji de prefijo si es 👤 */
+  const authorText=rawAuthor.replace(/^👤\s*/,'');
 
-  /* extraer texto: clonar, quitar actions y autor, convertir <br> → \n */
   const clone=sticky.cloneNode(true);
   clone.querySelector('.sticky-actions')?.remove();
   clone.querySelector('.s-author')?.remove();
@@ -459,33 +511,77 @@ function open_edit(btn){
   document.getElementById('modal_sub').textContent='Modifica el texto o el responsable de esta tarjeta.';
   document.getElementById('save_btn').textContent='Guardar cambios ✓';
   document.getElementById('note_text').value=contentText;
-  document.getElementById('note_author').value=authorText;
+  clear_errors();
+
+  /* pre-seleccionar en el dropdown o caer en "Otro" */
+  const sel=document.getElementById('note_author');
+  if(USER_OPTIONS.includes(authorText)){
+    sel.value=authorText;
+    set_otro_visible(false);
+  } else {
+    sel.value='__otro__';
+    document.getElementById('note_author_otro').value=authorText;
+    set_otro_visible(true);
+  }
+
   document.getElementById('modal_bg').classList.add('open');
   document.getElementById('note_text').focus();
   document.getElementById('note_text').select();
+}
+
+/* ── CAMBIO EN SELECT ── */
+function on_author_change(){
+  const v=document.getElementById('note_author').value;
+  set_otro_visible(v==='__otro__');
+  if(v) document.getElementById('author_field').classList.remove('field-error');
+}
+function set_otro_visible(show){
+  document.getElementById('otro_field').style.display=show?'block':'none';
+  if(show) setTimeout(()=>document.getElementById('note_author_otro').focus(),50);
 }
 
 /* ── CERRAR MODAL ── */
 function close_modal(){
   document.getElementById('modal_bg').classList.remove('open');
   document.getElementById('save_btn').textContent='Agregar ✓';
+  clear_errors();
+  set_otro_visible(false);
   _row=null; _seg=null; _editNote=null;
+}
+function clear_errors(){
+  document.getElementById('author_field').classList.remove('field-error');
+}
+
+/* ── RESOLVER AUTOR FINAL ── */
+function get_author(){
+  const sel=document.getElementById('note_author').value;
+  if(!sel) return null;
+  if(sel==='__otro__'){
+    const v=document.getElementById('note_author_otro').value.trim();
+    return v||null;
+  }
+  return sel;
 }
 
 /* ── GUARDAR (nuevo o edición) ── */
 function save_note(){
   const txt=document.getElementById('note_text').value.trim();
-  const auth=document.getElementById('note_author').value.trim()||'Equipo';
-  if(!txt)return;
+  const auth=get_author();
+
+  /* validación: autor obligatorio */
+  if(!auth){
+    document.getElementById('author_field').classList.add('field-error');
+    document.getElementById('note_author').focus();
+    return;
+  }
+  if(!txt) return;
 
   if(_editNote){
-    /* modo edición: reemplazar contenido preservando clase de color */
     const cls=_editNote.className;
-    _editNote.innerHTML=build_html(txt,auth);
+    _editNote.innerHTML=build_html(txt, auth);
     _editNote.className=cls;
     _editNote=null;
   } else {
-    /* modo agregar: crear nueva tarjeta */
     const wrap=document.getElementById(`notes-${_row}-${_seg}`);
     const d=document.createElement('div');
     d.className='sticky s-new';
