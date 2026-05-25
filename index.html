@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablero Fidelización VPP 2026 — Lluvia de Ideas</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
+
+/* HEADER */
+.page-header{background:#1a1a2e;color:white;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.page-title{font-size:17px;font-weight:700;}
+.page-subtitle{font-size:11px;opacity:.65;margin-top:2px;}
+.header-meta{font-size:11px;opacity:.55;text-align:right;}
+
+/* TOOLBAR */
+.toolbar{background:white;border-bottom:1px solid #ddd;padding:8px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.btn{padding:6px 14px;border:1px solid #ccc;border-radius:4px;background:white;cursor:pointer;font-size:11px;font-family:inherit;transition:background .15s;}
+.btn:hover{background:#f0f0f0;}
+.btn-primary{background:#3b3fa5;color:white;border-color:#3b3fa5;}
+.btn-primary:hover{background:#2e3285;}
+.legend{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-right:auto;}
+.legend-title{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:#555;}
+.legend-dot{width:14px;height:14px;border-radius:3px;border:2px solid;}
+
+/* BOARD */
+.board-wrap{padding:16px;overflow-x:auto;}
+.board{display:grid;grid-template-columns:88px repeat(4,1fr);gap:0;min-width:860px;border:1px solid #bbb;border-radius:4px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+
+/* HEADER ROW */
+.hdr-blank{background:#f0f0f0;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;padding:10px 4px;}
+.hdr-seg{padding:10px 14px;font-weight:800;font-size:13px;letter-spacing:.8px;border:1px solid #ccc;display:flex;align-items:center;gap:8px;}
+.hdr-vip{background:#FFF9C4;color:#795000;}
+.hdr-oro{background:#DCEDC8;color:#2E6B00;}
+.hdr-plata{background:#FCE4EC;color:#880E3F;}
+.hdr-bronce{background:#FFE0B2;color:#8B3300;}
+.seg-badge{font-size:9px;opacity:.6;font-weight:600;}
+
+/* ROW LABEL */
+.row-label{background:#f8f8f8;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px 6px;font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#555;line-height:1.4;}
+
+/* BOARD CELL */
+.board-cell{background:white;border:1px solid #d0d0d0;padding:8px;min-height:190px;display:flex;flex-direction:column;gap:0;position:relative;}
+.cell-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid #f0f0f0;}
+.cell-seg{font-size:9px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.4px;}
+.cell-cnt{font-size:9px;background:#f0f0f0;padding:1px 6px;border-radius:8px;color:#777;}
+.notes-wrap{display:flex;flex-direction:column;gap:5px;flex:1;}
+
+/* STICKY */
+.sticky{padding:7px 22px 7px 9px;border-radius:3px;font-size:10.5px;line-height:1.45;position:relative;cursor:default;box-shadow:1px 1px 3px rgba(0,0,0,.13);transition:transform .1s,box-shadow .1s;}
+.sticky:hover{transform:translateY(-1px);box-shadow:1px 3px 6px rgba(0,0,0,.18);}
+.s-vip{background:#FFFDE7;border-left:3px solid #FBC02D;}
+.s-oro{background:#F9FBE7;border-left:3px solid #7CB342;}
+.s-plata{background:#FCE4EC;border-left:3px solid #E91E8A;}
+.s-bronce{background:#FFF3E0;border-left:3px solid #F4511E;}
+.s-new{background:#E8F4FF;border-left:3px solid #1E88E5;}
+.s-author{font-size:9px;color:#999;margin-top:4px;font-style:italic;}
+.del-btn{position:absolute;top:4px;right:6px;font-size:15px;cursor:pointer;opacity:0;color:rgba(0,0,0,.35);line-height:1;background:none;border:none;padding:0;font-family:inherit;}
+.sticky:hover .del-btn{opacity:1;}
+
+/* ADD BTN */
+.add-btn{margin-top:5px;width:100%;padding:5px;border:1px dashed #ccc;border-radius:3px;background:transparent;color:#bbb;font-size:10px;cursor:pointer;text-align:center;font-family:inherit;}
+.add-btn:hover{border-color:#999;color:#666;background:#fafafa;}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:white;border-radius:8px;padding:24px;width:400px;max-width:92vw;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+.modal h3{margin-bottom:4px;font-size:13px;color:#1a1a2e;}
+.modal p{font-size:11px;color:#888;margin-bottom:14px;}
+.modal textarea,.modal input{width:100%;border:1px solid #ddd;border-radius:4px;padding:8px;font-size:12px;font-family:inherit;outline:none;}
+.modal textarea{height:90px;resize:vertical;}
+.modal input{margin-top:8px;}
+.modal textarea:focus,.modal input:focus{border-color:#3b3fa5;}
+.modal-ft{margin-top:12px;display:flex;gap:8px;justify-content:flex-end;}
+
+/* STATS BAR */
+.stats-bar{background:#1a1a2e;color:rgba(255,255,255,.75);padding:6px 20px;font-size:10px;display:flex;gap:24px;flex-wrap:wrap;}
+.stat-item b{color:white;}
+
+@media print{
+  .toolbar,.modal-bg,.del-btn,.add-btn,.stats-bar{display:none!important;}
+  .board-wrap{padding:4px;}
+  body{background:white;}
+  .page-header{background:#1a1a2e!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .hdr-vip,.hdr-oro,.hdr-plata,.hdr-bronce{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Tablero Fidelización VPP 2026 — Lluvia de Ideas</div>
+    <div class="page-subtitle">Propuestas por segmento y área responsable · Clientes con vehículo en parte de pago · Período: Ene–May 2026</div>
+  </div>
+  <div class="header-meta">2,650 leads VPP · 157 ventas · 5.9% cierre global<br>Generado: Mayo 2026</div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-item"><b>VIP:</b> 460 leads · 4.0% cierre nuevos</div>
+  <div class="stat-item"><b>ORO:</b> 764 leads · Cal→Venta 88.4% (cuello 9%)</div>
+  <div class="stat-item"><b>PLATA:</b> 556 leads · 37.1% Descarte Masivo</div>
+  <div class="stat-item"><b>BRONCE:</b> 870 leads · Bronce Usados 3.8% cierre</div>
+  <div class="stat-item" style="margin-left:auto;"><b>83</b> leads descartados incorrectamente que terminaron comprando</div>
+</div>
+
+<div class="toolbar">
+  <div class="legend">
+    <span class="legend-title">Segmentos:</span>
+    <div class="legend-item"><div class="legend-dot" style="background:#FFFDE7;border-color:#FBC02D;"></div>VIP</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#F9FBE7;border-color:#7CB342;"></div>Oro</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FCE4EC;border-color:#E91E8A;"></div>Plata</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FFF3E0;border-color:#F4511E;"></div>Bronce</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#E8F4FF;border-color:#1E88E5;"></div>Nueva propuesta (equipo)</div>
+  </div>
+  <button class="btn" onclick="window.print()">🖨 Imprimir</button>
+  <button class="btn btn-primary" onclick="exportTSV()">⬇ Exportar ideas</button>
+</div>
+
+<div class="board-wrap">
+<div class="board" id="board">
+
+  <!-- HEADER ROW -->
+  <div class="hdr-blank">RESPONSABLES</div>
+  <div class="hdr-seg hdr-vip">⭐ VIP <span class="seg-badge">· Mayor valor</span></div>
+  <div class="hdr-seg hdr-oro">🥇 ORO <span class="seg-badge">· Mejor margen</span></div>
+  <div class="hdr-seg hdr-plata">🥈 PLATA <span class="seg-badge">· Seg. medio</span></div>
+  <div class="hdr-seg hdr-bronce">🥉 BRONCE <span class="seg-badge">· Mayor volumen</span></div>
+
+  <!-- ===== ROW 1: POLÍTICA COMERCIAL ===== -->
+  <div class="row-label">POLÍTICA<br>COMERCIAL</div>
+
+  <div class="board-cell" data-row="politica" data-seg="vip">
+    <div class="cell-head"><span class="cell-seg">VIP</span><span class="cell-cnt" id="cnt-politica-vip">1</span></div>
+    <div class="notes-wrap" id="notes-politica-vip">
+      <div class="sticky s-vip">
+        <button class="del-btn" onclick="del(this)">×</button>
+        Reemplazar descuentos por beneficios premium: garantía extendida, servicio prioritario, accesorios. El VIP tiene el descuento más bajo (2.2%) pero la peor tasa de cierre (4.0%) — el problema no es el precio.
+        <div class="s-author">📊 Análisis VPP 2026</div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="open_modal('politica','vip')">+ Agregar propuesta</button>
+  </div>
+
+  <div class="board-cell" data-row="politica" data-seg="oro">
+    <div class="cell-head"><span class="cell-seg">ORO</span><span class="cell-cnt" id="cnt-politica-oro">1</span></div>
+    <div class="notes-wrap" id="notes-politica-oro">
+      <div class="sticky s-oro">
+        <button class="del-btn" onclick="del(this)">×</button>
+        Proteger margen Oro Usados (14.4% — el mejor del portafolio). Definir escala de beneficios diferenciada respecto a VIP. Priorizar incentivos no monetarios para no erosionar margen actual.
+        <div class="s-author">📊 Análisis VPP 2026</div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="open_modal('politica','oro')">+ Agregar propuesta</button>
+  </div>
+
+  <div class="board-cell" data-row="politica" data-seg="plata">
+    <div class="cell-head"><span class="cell-seg">PLATA</span><span class="cell-cnt" id="cnt-politica-plata">1</span></div>
+    <div class="notes-wrap" id="notes-politica-plata">
+      <div class="sticky s-plata">
+        <button class="del-btn" onclick="del(this)">×</button>
+        Revisar criterios de Descarte Masivo: 37.1% en Plata Nuevos se pierde sin gestión individual. Definir SLA mínimo de 2 contactos antes de descartar cualquier lead de segmento Plata o superior.
+        <div class="s-author">📊 Análisis VPP 2026</div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="open_modal('politica','plata')">+ Agregar propuesta</button>
+  </div>
+
+  <div class="board-cell" data-row="politica" data-seg="bronce">
+    <div class="cell-head"><span class="cell-seg">BRONCE</span><span class="cell-cnt" id="cnt-politica-bronce">1</span></div>
+    <div class="notes-wrap" id="notes-politica-bronce">
+      <div class="sticky s-bronce">
+        <button class="del-btn" onclick="del(this)">×</button>
+        Definir política de tasación post-calificación para Bronce Usados. Hoy 22.8% califica pero solo 3.8% cierra — hay quiebre en la negociación de tasación. Se requiere protocolo y capacitación a evaluadores.
+        <div class="s-author">📊 Análisis VPP 2026</div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="open_modal('politica','bronce')">+ Agregar propuesta</button>
+  </div>
+
+  <!-- ===== ROW 2: MARKETING Y EXPERIENCIA DEL CLIENTE ===== -->
+  <div class="row-label">MARKETING Y<br>EXPERIENCIA<br>DEL CLIENTE</div>
+
+  <div class="board-cell" data-row="marketing" data-seg="vip">
+    <div class="cell-head"><span class="cell-seg">VIP</span><span class="cell-cnt" id="cnt-marketing-vip">2</span></div>
+    <div class="notes-wrap" id="notes-marketing-vip">
+      <div class="sticky s-vip">
+        <button class="del-btn" onclick="del(this)">×</button>
+        Diseñar Journey VIP personalizado: gestor dedicado, contacto humano (no automatizado) antes de cualquier descarte. Hoy 50.5% de VIP Nuevos se descarta como "Descarte Masivo" sin gestión individual.
+        <div class="s-author">📊 Análisis VPP 2026</div>
+      </div>
+      <div class="sticky s-vip">
+        <button class="del-btn" onclick="del(this)">×</button>
+        Comunicar política de beneficios VPP al cliente VIP desde el primer contacto. El cliente no sabe qué obtiene por entregar su auto — neutralizar "Negativo por VPP" (3–5%) con comunicación proactiva.
+        <div class="s-author">📊 Análisis VPP 2026</div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="open_modal('marketing','vip')">+ Agregar propuesta</button>
+  </div>
+
+  <div class="board-cell" data-row="marketing" data-seg="oro">
+    <div class="cell-head"><span class="cell-seg">ORO</span><span class="cell-cnt" id="cnt-marketing-oro">2</span></div>
+    <div class="notes-wrap" id="notes-marketing-oro">
+      <div class="sticky s-oro">
+        <button class="del-btn" onclick="del(this)">×</button>
+        Comunicar propuesta de valor Oro claramente en todos los touchpoints. Una vez calificado, el cliente Oro Nuevos cierra al 88.4% — el cuello es la calificación (solo 9% llega). Mejorar promesa de experiencia.
+        <div class="s-author">📊 Análisis VPP 2026</div>
+      </div>
+      <div class="sticky s-oro">
+        <button class="del-btn" onclick="del(this)">×</button>
+        Journey de reactivación 30–60 días para descartes prematuros. 30% de leads descartados volvieron y compraron — necesitamos interceptarlos activamente con oferta relevante por su segmento.
+        <div class="s-author">📊 Análisis VPP 2026</div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="open_modal('marketing','oro')">+ Agregar propuesta</button>
+  </div>
+
+  <div class="board-cell" data-row="marketing" data-seg="plata">
+    <div class="cell-head"><span class="cell-seg">PLATA</span><span class="cell-cnt" id="cnt-marketing-plata">1</span></div>
+    <div class="notes-wrap" id="notes-marketing-plata">
+      <div class="sticky s-plata">
+        <button class="del-btn" onclick="del(this)">×</button>
+        Protocolo omnicanal para Plata: WhatsApp → Llamada → Email (3 intentos antes de descarte). Tiempos y mensajes adaptados por segmento. Objetivo: reducir "No Contesta" del 20% actual a menos del 10%.
+        <div class="s-author">📊 Análisis VPP 2026</div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="open_modal('marketing','plata')">+ Agregar propuesta</button>
+  </div>
+
+  <div class="board-cell" data-row="marketing" data-seg="bronce">
+    <div class="cell-head"><span class="cell-seg">BRONCE</span><span class="cell-cnt" id="cnt-marketing-bronce">1</span></div>
+    <div class="notes-wrap" id="notes-marketing-bronce">
+      <div class="sticky s-bronce">
+        <button class="del-btn" onclick="del(this)">×</button>
+        Campaña educativa pre-tasación para Bronce Usados: comunicar al cliente el valor de su vehículo antes de la negociación. Reducir brecha expectativa vs. valor real para mejorar tasa Cal→Venta (hoy solo 16.7%).
+        <div class="s-author">📊 Análisis VPP 2026</div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="open_modal('marketing','bronce')">+ Agregar propuesta</button>
+  </div>
+
+  <!-- ===== ROW 3: CRM ===== -->
+  <div class="row-label">CRM</div>
+
+  <div class="board-cell" data-row="crm" data-seg="vip">
+    <div class="cell-head"><span class="cell-seg">VIP</span><span class="cell-cnt" id="cnt-crm-vip">2</span></div>
+    <div class="notes-wrap" id="notes-crm-vip">
+      <div class="sticky s-vip">
+        <button class="del-btn" onclick="del(this)">×</button>
+        ✅ Segmentos VIP identificados en CRM.<br>⚠️ Pendiente: texto/guión que comunique la política comercial VIP al ejecutivo de manera clara. La política no la define CRM — pero CRM debe habilitarla operativamente.
+        <div class="s-author">🖥 CRM — Estado actual</div>
+      </div>
+      <div class="sticky s-vip">
+        <button class="del-btn" onclick="del(this)">×</button>
+        Alerta preventiva en CRM: notificar al ejecutivo antes de que un VIP entre en riesgo de Descarte Masivo. Con 50.5% de descarte actual, cada alerta evitada tiene alto impacto en margen.
+        <div class="s-author">🖥 CRM — Propuesta</div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="open_modal('crm','vip')">+ Agregar propuesta</button>
+  </div>
+
+  <div class="board-cell" data-row="crm" data-seg="oro">
+    <div class="cell-head"><span class="cell-seg">ORO</span><span class="cell-cnt" id="cnt-crm-oro">2</span></div>
+    <div class="notes-wrap" id="notes-crm-oro">
+      <div class="sticky s-oro">
+        <button class="del-btn" onclick="del(this)">×</button>
+        ✅ Segmento Oro identificado en CRM.<br>⚠️ Cuello de botella: solo 9% de Oro Nuevos llega a calificado, pero 88.4% de los que califican cierran. El problema es antes de la calificación. Revisar criterios y flujo en CRM.
+        <div class="s-author">🖥 CRM — Estado actual</div>
+      </div>
+      <div class="sticky s-oro">
+        <button class="del-btn" onclick="del(this)">×</button>
+        Crear motivo de descarte "Negativo por VPP" en CRM como campo diferenciado. Hoy 3–5% por segmento se pierde por tasación antes de activar el bono VPP — son recuperables con seguimiento diferenciado.
+        <div class="s-author">🖥 CRM — Propuesta</div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="open_modal('crm','oro')">+ Agregar propuesta</button>
+  </div>
+
+  <div class="board-cell" data-row="crm" data-seg="plata">
+    <div class="cell-head"><span class="cell-seg">PLATA</span><span class="cell-cnt" id="cnt-crm-plata">2</span></div>
+    <div class="notes-wrap" id="notes-crm-plata">
+      <div class="sticky s-plata">
+        <button class="del-btn" onclick="del(this)">×</button>
+        ✅ Segmento Plata identificado en CRM.<br>Crear journey de recuperación para leads descartados prematuramente. 30% de descartados volvieron y compraron — CRM debe detectar retorno y activar flujo de rescate.
+        <div class="s-author">🖥 CRM — Estado actual</div>
+      </div>
+      <div class="sticky s-plata">
+        <button class="del-btn" onclick="del(this)">×</button>
+        Automatizar secuencia de contacto omnicanal desde CRM: WhatsApp (Paula IA) → llamada ejecutivo → email. Tiempos diferenciados por segmento. Objetivo reducir "No Contesta" en todos los segmentos Usados.
+        <div class="s-author">🖥 CRM — Propuesta</div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="open_modal('crm','plata')">+ Agregar propuesta</button>
+  </div>
+
+  <div class="board-cell" data-row="crm" data-seg="bronce">
+    <div class="cell-head"><span class="cell-seg">BRONCE</span><span class="cell-cnt" id="cnt-crm-bronce">2</span></div>
+    <div class="notes-wrap" id="notes-crm-bronce">
+      <div class="sticky s-bronce">
+        <button class="del-btn" onclick="del(this)">×</button>
+        ✅ Segmento Bronce identificado en CRM.<br>Activar Paula IA como primer contacto automatizado para Bronce (870 leads — mayor volumen). Libera capacidad ejecutiva para segmentos de mayor margen (VIP, Oro).
+        <div class="s-author">🖥 CRM — Estado actual</div>
+      </div>
+      <div class="sticky s-bronce">
+        <button class="del-btn" onclick="del(this)">×</button>
+        Crear dashboard de tasación post-calificación en CRM para Bronce Usados: alertar cuando un lead calificado lleva +3 días sin avance hacia cierre. Reduce fugas en la etapa crítica de negociación.
+        <div class="s-author">🖥 CRM — Propuesta</div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="open_modal('crm','bronce')">+ Agregar propuesta</button>
+  </div>
+
+</div><!-- /board -->
+</div><!-- /board-wrap -->
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal_bg">
+  <div class="modal">
+    <h3 id="modal_title">Agregar propuesta</h3>
+    <p id="modal_sub">Escribe tu idea y tu nombre para que el equipo sepa quién la propone.</p>
+    <textarea id="note_text" placeholder="Escribe tu propuesta aquí..."></textarea>
+    <input type="text" id="note_author" placeholder="Tu nombre y área (ej: Daniela Godoy · Marketing)">
+    <div class="modal-ft">
+      <button class="btn" onclick="close_modal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="add_note()">Agregar ✓</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ROW_LABELS = {politica:'Política Comercial', marketing:'Marketing y Exp. Cliente', crm:'CRM'};
+const SEG_LABELS = {vip:'VIP', oro:'ORO', plata:'PLATA', bronce:'BRONCE'};
+const SEG_CLASS  = {vip:'s-vip', oro:'s-oro', plata:'s-plata', bronce:'s-bronce'};
+let _row=null, _seg=null;
+
+function open_modal(row,seg){
+  _row=row; _seg=seg;
+  document.getElementById('modal_title').textContent = `Agregar propuesta — ${ROW_LABELS[row]} · ${SEG_LABELS[seg]}`;
+  document.getElementById('note_text').value='';
+  document.getElementById('note_author').value='';
+  document.getElementById('modal_bg').classList.add('open');
+  document.getElementById('note_text').focus();
+}
+function close_modal(){
+  document.getElementById('modal_bg').classList.remove('open');
+  _row=null; _seg=null;
+}
+function add_note(){
+  const txt = document.getElementById('note_text').value.trim();
+  const auth = document.getElementById('note_author').value.trim()||'Equipo';
+  if(!txt) return;
+  const wrap = document.getElementById(`notes-${_row}-${_seg}`);
+  const cl   = SEG_CLASS[_seg]||'s-new';
+  const d    = document.createElement('div');
+  d.className = `sticky s-new`;
+  d.innerHTML = `<button class="del-btn" onclick="del(this)">×</button>${escHtml(txt)}<div class="s-author">💬 ${escHtml(auth)}</div>`;
+  wrap.appendChild(d);
+  update_cnt(_row,_seg);
+  close_modal();
+}
+function del(btn){
+  const s=btn.closest('.sticky');
+  const c=s.closest('.notes-wrap');
+  const cell=c.closest('.board-cell');
+  s.remove();
+  update_cnt(cell.dataset.row, cell.dataset.seg);
+}
+function update_cnt(row,seg){
+  const w=document.getElementById(`notes-${row}-${seg}`);
+  const c=document.getElementById(`cnt-${row}-${seg}`);
+  if(w&&c) c.textContent=w.children.length;
+}
+function escHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+document.getElementById('modal_bg').addEventListener('click',function(e){if(e.target===this)close_modal();});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') close_modal();
+  if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)&&_row) add_note();
+});
+
+function exportTSV(){
+  let rows=[['ÁREA','SEGMENTO','PROPUESTA','RESPONSABLE/AUTOR']];
+  ['politica','marketing','crm'].forEach(r=>{
+    ['vip','oro','plata','bronce'].forEach(s=>{
+      const w=document.getElementById(`notes-${r}-${s}`);
+      if(w) w.querySelectorAll('.sticky').forEach(n=>{
+        const text=(n.cloneNode(true).querySelector('.s-author').remove(), n.innerText).replace(/\n/g,' ').replace(/×/g,'').trim();
+        const auth=(n.querySelector('.s-author')||{}).innerText||'';
+        rows.push([ROW_LABELS[r], SEG_LABELS[s], text, auth]);
+      });
+    });
+  });
+  const tsv=rows.map(r=>r.join('\t')).join('\n');
+  const blob=new Blob(['﻿'+tsv],{type:'text/tab-separated-values;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='Ideas_Tablero_Fidelizacion_VPP_2026.tsv';
+  a.click();
+}
+</script>
+</body>
+</html>
