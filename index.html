@@ -64,33 +64,68 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
 .cell-cnt{font-size:9px;background:#f0f0f0;padding:1px 6px;border-radius:8px;color:#777;}
 .notes-wrap{display:flex;flex-direction:column;gap:5px;flex:1;}
 
-.sticky{padding:7px 22px 7px 9px;border-radius:3px;font-size:10.5px;line-height:1.45;position:relative;cursor:default;box-shadow:1px 1px 3px rgba(0,0,0,.13);transition:transform .1s,box-shadow .1s;}
+/* STICKY */
+.sticky{padding:22px 9px 7px 9px;border-radius:3px;font-size:10.5px;line-height:1.45;position:relative;cursor:default;box-shadow:1px 1px 3px rgba(0,0,0,.13);transition:transform .1s,box-shadow .1s;}
 .sticky:hover{transform:translateY(-1px);box-shadow:1px 3px 6px rgba(0,0,0,.18);}
-.s-vip{background:#FFFDE7;border-left:3px solid #FBC02D;}
-.s-oro{background:#F9FBE7;border-left:3px solid #7CB342;}
+.s-vip  {background:#FFFDE7;border-left:3px solid #FBC02D;}
+.s-oro  {background:#F9FBE7;border-left:3px solid #7CB342;}
 .s-plata{background:#FCE4EC;border-left:3px solid #E91E8A;}
 .s-bronce{background:#FFF3E0;border-left:3px solid #F4511E;}
-.s-new{background:#E8F4FF;border-left:3px solid #1E88E5;}
-.s-author{font-size:9px;color:#999;margin-top:4px;font-style:italic;}
-.del-btn{position:absolute;top:4px;right:6px;font-size:15px;cursor:pointer;opacity:0;color:rgba(0,0,0,.35);line-height:1;background:none;border:none;padding:0;font-family:inherit;}
-.sticky:hover .del-btn{opacity:1;}
+.s-new  {background:#E8F4FF;border-left:3px solid #1E88E5;}
 
+/* AUTHOR badge — visible y con color */
+.s-author{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:9px;font-style:normal;font-weight:600;
+  color:#555;background:rgba(0,0,0,.07);
+  padding:2px 7px;border-radius:8px;margin-top:6px;
+}
+
+/* ACTION BUTTONS (editar + eliminar) — aparecen en hover */
+.sticky-actions{
+  position:absolute;top:4px;right:4px;
+  display:flex;gap:2px;
+  opacity:0;transition:opacity .15s;
+}
+.sticky:hover .sticky-actions{opacity:1;}
+.act-btn{
+  background:none;border:none;padding:2px 5px;
+  cursor:pointer;font-size:12px;color:rgba(0,0,0,.35);
+  line-height:1;border-radius:3px;font-family:inherit;
+  transition:background .1s,color .1s;
+}
+.act-btn:hover{background:rgba(0,0,0,.1);color:rgba(0,0,0,.7);}
+.act-edit:hover{color:#0f3460;}
+.act-del:hover{color:#C62828;}
+
+/* ADD BTN */
 .add-btn{margin-top:5px;width:100%;padding:5px;border:1px dashed #ccc;border-radius:3px;background:transparent;color:#bbb;font-size:10px;cursor:pointer;text-align:center;font-family:inherit;}
 .add-btn:hover{border-color:#999;color:#666;background:#fafafa;}
 
+/* MODAL */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;}
 .modal-bg.open{display:flex;}
-.modal{background:white;border-radius:8px;padding:24px;width:400px;max-width:92vw;box-shadow:0 8px 32px rgba(0,0,0,.2);}
-.modal h3{margin-bottom:4px;font-size:13px;color:#1a1a2e;}
-.modal p{font-size:11px;color:#888;margin-bottom:14px;}
-.modal textarea,.modal input{width:100%;border:1px solid #ddd;border-radius:4px;padding:8px;font-size:12px;font-family:inherit;outline:none;}
-.modal textarea{height:90px;resize:vertical;}
-.modal input{margin-top:8px;}
+.modal{background:white;border-radius:8px;padding:24px;width:420px;max-width:92vw;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+.modal-mode-badge{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border-radius:8px;margin-bottom:8px;}
+.badge-add{background:#E8F4FF;color:#0f3460;}
+.badge-edit{background:#FFF9C4;color:#795000;}
+.modal h3{font-size:13px;color:#1a1a2e;margin-bottom:2px;}
+.modal p{font-size:11px;color:#888;margin-bottom:12px;}
+.modal label{font-size:10px;font-weight:600;color:#555;display:block;margin-bottom:4px;}
+.modal textarea,.modal input{
+  width:100%;border:1px solid #ddd;border-radius:4px;
+  padding:8px;font-size:12px;font-family:inherit;outline:none;
+  transition:border-color .15s;
+}
+.modal textarea{height:100px;resize:vertical;}
+.modal input{margin-top:0;}
+.modal .field{margin-bottom:10px;}
 .modal textarea:focus,.modal input:focus{border-color:#0f3460;}
-.modal-ft{margin-top:12px;display:flex;gap:8px;justify-content:flex-end;}
+.modal-ft{margin-top:14px;display:flex;gap:8px;justify-content:flex-end;align-items:center;}
+.modal-hint{font-size:9px;color:#bbb;margin-right:auto;}
 
 @media print{
-  .toolbar,.modal-bg,.del-btn,.add-btn{display:none!important;}
+  .toolbar,.modal-bg,.sticky-actions,.add-btn{display:none!important;}
   .board-wrap{padding:4px;}
   body{background:white;}
 }
@@ -110,46 +145,14 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
 </div>
 
 <div class="stats-bar">
-  <div class="stat-block">
-    <div class="stat-label">Total leads usados</div>
-    <div class="stat-value">1,053</div>
-    <div class="stat-sub">Ene–May 2026</div>
-  </div>
-  <div class="stat-block">
-    <div class="stat-label">Ventas trazadas</div>
-    <div class="stat-value stat-green">60</div>
-    <div class="stat-sub">5.7% cierre real</div>
-  </div>
-  <div class="stat-block">
-    <div class="stat-label">Tasa calificación</div>
-    <div class="stat-value stat-yellow">19.9%</div>
-    <div class="stat-sub">210 calificados</div>
-  </div>
-  <div class="stat-block">
-    <div class="stat-label">Descarte global</div>
-    <div class="stat-value stat-red">75.4%</div>
-    <div class="stat-sub">"No Contesta" lidera</div>
-  </div>
-  <div class="stat-block">
-    <div class="stat-label">Margen promedio</div>
-    <div class="stat-value stat-green">12.2%</div>
-    <div class="stat-sub">Desc. promedio 3.5%</div>
-  </div>
-  <div class="stat-block">
-    <div class="stat-label">🔴 Crítico — VIP Usados</div>
-    <div class="stat-value stat-red">6.3%</div>
-    <div class="stat-sub">descuento · margen solo 8.0%</div>
-  </div>
-  <div class="stat-block">
-    <div class="stat-label">⭐ Estrella — Oro Usados</div>
-    <div class="stat-value stat-green">14.4%</div>
-    <div class="stat-sub">mejor margen portafolio</div>
-  </div>
-  <div class="stat-block">
-    <div class="stat-label">🔴 Crítico — Bronce Usados</div>
-    <div class="stat-value stat-red">3.8%</div>
-    <div class="stat-sub">cierre real · 22.8% califica</div>
-  </div>
+  <div class="stat-block"><div class="stat-label">Total leads usados</div><div class="stat-value">1,053</div><div class="stat-sub">Ene–May 2026</div></div>
+  <div class="stat-block"><div class="stat-label">Ventas trazadas</div><div class="stat-value stat-green">60</div><div class="stat-sub">5.7% cierre real</div></div>
+  <div class="stat-block"><div class="stat-label">Tasa calificación</div><div class="stat-value stat-yellow">19.9%</div><div class="stat-sub">210 calificados</div></div>
+  <div class="stat-block"><div class="stat-label">Descarte global</div><div class="stat-value stat-red">75.4%</div><div class="stat-sub">"No Contesta" lidera</div></div>
+  <div class="stat-block"><div class="stat-label">Margen promedio</div><div class="stat-value stat-green">12.2%</div><div class="stat-sub">Desc. promedio 3.5%</div></div>
+  <div class="stat-block"><div class="stat-label">🔴 Crítico — VIP Usados</div><div class="stat-value stat-red">6.3%</div><div class="stat-sub">descuento · margen solo 8.0%</div></div>
+  <div class="stat-block"><div class="stat-label">⭐ Estrella — Oro Usados</div><div class="stat-value stat-green">14.4%</div><div class="stat-sub">mejor margen portafolio</div></div>
+  <div class="stat-block"><div class="stat-label">🔴 Crítico — Bronce Usados</div><div class="stat-value stat-red">3.8%</div><div class="stat-sub">cierre real · 22.8% califica</div></div>
 </div>
 
 <div class="kpi-strip">
@@ -186,11 +189,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
 <div class="toolbar">
   <div class="legend">
     <span class="legend-title">Segmentos:</span>
-    <div class="legend-item"><div class="legend-dot" style="background:#FFFDE7;border-color:#FBC02D;"></div>VIP Usados</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#F9FBE7;border-color:#7CB342;"></div>Oro Usados</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#FCE4EC;border-color:#E91E8A;"></div>Plata Usados</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#FFF3E0;border-color:#F4511E;"></div>Bronce Usados</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#E8F4FF;border-color:#1E88E5;"></div>Nueva propuesta</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FFFDE7;border-color:#FBC02D;"></div>VIP</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#F9FBE7;border-color:#7CB342;"></div>Oro</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FCE4EC;border-color:#E91E8A;"></div>Plata</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FFF3E0;border-color:#F4511E;"></div>Bronce</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#E8F4FF;border-color:#1E88E5;"></div>Nueva</div>
+    <span style="font-size:10px;color:#aaa;margin-left:4px;">· Pasa el cursor sobre una tarjeta para editar ✏ o eliminar ×</span>
   </div>
   <button class="btn" onclick="window.print()">🖨 Imprimir</button>
   <button class="btn btn-primary" onclick="exportTSV()">⬇ Exportar ideas</button>
@@ -205,14 +209,14 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
   <div class="hdr-seg hdr-plata">🥈 PLATA<span class="seg-kpi">213 leads · ~21% No Contesta · margen ~12%</span></div>
   <div class="hdr-seg hdr-bronce">🥉 BRONCE<span class="seg-kpi">369 leads · 22.8% calif. · 3.8% cierre real</span></div>
 
-  <!-- ROW 1: POLÍTICA COMERCIAL -->
+  <!-- ===== ROW 1: POLÍTICA COMERCIAL ===== -->
   <div class="row-label">POLÍTICA<br>COMERCIAL</div>
 
   <div class="board-cell" data-row="politica" data-seg="vip">
     <div class="cell-head"><span class="cell-seg">VIP Usados</span><span class="cell-cnt" id="cnt-politica-vip">1</span></div>
     <div class="notes-wrap" id="notes-politica-vip">
       <div class="sticky s-vip">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         VIP Usados: mayor descuento del portafolio (6.3%) y menor margen (8.0%). Definir política de beneficios no monetarios — garantía extendida, servicio prioritario, accesorios — para reemplazar descuento en precio y recuperar margen.
         <div class="s-author">📊 Análisis VPP Usados 2026</div>
       </div>
@@ -224,7 +228,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
     <div class="cell-head"><span class="cell-seg">ORO Usados</span><span class="cell-cnt" id="cnt-politica-oro">1</span></div>
     <div class="notes-wrap" id="notes-politica-oro">
       <div class="sticky s-oro">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         Oro Usados: mejor margen del portafolio (14.4%) con solo 2.6% de descuento. Política debe proteger este diferencial — cero descuentos adicionales en Oro Usados. Cualquier beneficio debe ser en experiencia o postventa.
         <div class="s-author">📊 Análisis VPP Usados 2026</div>
       </div>
@@ -236,7 +240,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
     <div class="cell-head"><span class="cell-seg">PLATA Usados</span><span class="cell-cnt" id="cnt-politica-plata">1</span></div>
     <div class="notes-wrap" id="notes-politica-plata">
       <div class="sticky s-plata">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         Definir SLA mínimo de contacto para Plata Usados: 3 intentos omnicanal antes de descarte. "No Contesta" alcanza ~21% en Plata Usados — fuga evitable con protocolo claro que la política comercial debe respaldar.
         <div class="s-author">📊 Análisis VPP Usados 2026</div>
       </div>
@@ -248,7 +252,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
     <div class="cell-head"><span class="cell-seg">BRONCE Usados</span><span class="cell-cnt" id="cnt-politica-bronce">1</span></div>
     <div class="notes-wrap" id="notes-politica-bronce">
       <div class="sticky s-bronce">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         Bronce Usados: 22.8% califica pero solo 3.8% cierra. El quiebre está en la negociación de tasación. Definir política de tasación y protocolo de negociación específico para Bronce Usados con capacitación a evaluadores.
         <div class="s-author">📊 Análisis VPP Usados 2026</div>
       </div>
@@ -256,19 +260,19 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
     <button class="add-btn" onclick="open_modal('politica','bronce')">+ Agregar propuesta</button>
   </div>
 
-  <!-- ROW 2: MARKETING Y EXPERIENCIA DEL CLIENTE -->
+  <!-- ===== ROW 2: MARKETING Y EXPERIENCIA DEL CLIENTE ===== -->
   <div class="row-label">MARKETING Y<br>EXPERIENCIA<br>DEL CLIENTE</div>
 
   <div class="board-cell" data-row="marketing" data-seg="vip">
     <div class="cell-head"><span class="cell-seg">VIP Usados</span><span class="cell-cnt" id="cnt-marketing-vip">2</span></div>
     <div class="notes-wrap" id="notes-marketing-vip">
       <div class="sticky s-vip">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         Rediseñar journey VIP Usados: el cliente que entrega su auto es recurrente de alto valor. Gestión humana obligatoria — no automatizada. Gestor dedicado desde primer contacto hasta entrega. Experiencia diferenciada en tasación.
         <div class="s-author">📊 Análisis VPP Usados 2026</div>
       </div>
       <div class="sticky s-vip">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         El cliente VIP Usados no sabe qué beneficio obtiene al entregar su auto. Comunicar desde el primer contacto: ¿qué vale su auto?, ¿qué gana con nosotros? Neutralizar "Negativo por VPP" con propuesta proactiva y clara.
         <div class="s-author">📊 Análisis VPP Usados 2026</div>
       </div>
@@ -280,12 +284,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
     <div class="cell-head"><span class="cell-seg">ORO Usados</span><span class="cell-cnt" id="cnt-marketing-oro">2</span></div>
     <div class="notes-wrap" id="notes-marketing-oro">
       <div class="sticky s-oro">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         Oro Usados: 38.5% Cal→Venta — casi 4 de 10 calificados cierran. El problema es llegar a la calificación. Diseñar comunicación que lleve al cliente Oro Usados a la cita de tasación más rápido y con expectativas claras.
         <div class="s-author">📊 Análisis VPP Usados 2026</div>
       </div>
       <div class="sticky s-oro">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         Referentes internos en Usados: Roberto A. Alvarez y Karla P. Ubilla (66.7% cierre en VIP/Oro Usados). Documentar y escalar su metodología de contacto y cierre como benchmark de experiencia para el equipo.
         <div class="s-author">📊 Análisis VPP Usados 2026</div>
       </div>
@@ -297,7 +301,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
     <div class="cell-head"><span class="cell-seg">PLATA Usados</span><span class="cell-cnt" id="cnt-marketing-plata">1</span></div>
     <div class="notes-wrap" id="notes-marketing-plata">
       <div class="sticky s-plata">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         Protocolo omnicanal Plata Usados: WhatsApp (primer contacto) → Llamada ejecutivo → Email. 3 intentos en ventana 48–72 hrs antes de descarte por "No Contesta". Objetivo: bajar tasa de no contacto de ~21% a menos del 10%.
         <div class="s-author">📊 Análisis VPP Usados 2026</div>
       </div>
@@ -309,7 +313,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
     <div class="cell-head"><span class="cell-seg">BRONCE Usados</span><span class="cell-cnt" id="cnt-marketing-bronce">1</span></div>
     <div class="notes-wrap" id="notes-marketing-bronce">
       <div class="sticky s-bronce">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         Campaña educativa pre-tasación para Bronce Usados: enviar al cliente información del valor de mercado de su auto antes de la cita. Reduce brecha expectativa vs. valor real — principal causa del quiebre post-calificación en este segmento.
         <div class="s-author">📊 Análisis VPP Usados 2026</div>
       </div>
@@ -317,19 +321,19 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
     <button class="add-btn" onclick="open_modal('marketing','bronce')">+ Agregar propuesta</button>
   </div>
 
-  <!-- ROW 3: CRM -->
+  <!-- ===== ROW 3: CRM ===== -->
   <div class="row-label">CRM</div>
 
   <div class="board-cell" data-row="crm" data-seg="vip">
     <div class="cell-head"><span class="cell-seg">VIP Usados</span><span class="cell-cnt" id="cnt-crm-vip">2</span></div>
     <div class="notes-wrap" id="notes-crm-vip">
       <div class="sticky s-vip">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         ✅ Segmento VIP Usados identificado en CRM.<br>⚠️ Pendiente: alerta automática cuando el descuento en un cliente VIP Usados supere el umbral definido por Política Comercial. CRM visibiliza el problema — la política la define Gerencia Comercial.
         <div class="s-author">🖥 CRM — Estado actual</div>
       </div>
       <div class="sticky s-vip">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         Crear campo "política de beneficios VPP Usados" visible en la ficha del cliente VIP — el ejecutivo ve qué ofrecer sin necesidad de negociar a la baja. El texto lo define Política Comercial, CRM lo habilita operativamente.
         <div class="s-author">🖥 CRM — Propuesta</div>
       </div>
@@ -341,12 +345,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
     <div class="cell-head"><span class="cell-seg">ORO Usados</span><span class="cell-cnt" id="cnt-crm-oro">2</span></div>
     <div class="notes-wrap" id="notes-crm-oro">
       <div class="sticky s-oro">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         ✅ Segmento Oro Usados identificado en CRM.<br>Alerta si un lead Oro Usados lleva +2 días sin avance post-calificación. Con 38.5% Cal→Venta, cada lead calificado que no avanza es una venta de alto margen perdida.
         <div class="s-author">🖥 CRM — Estado actual</div>
       </div>
       <div class="sticky s-oro">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         Registrar "Negativo por VPP Usados" como motivo de descarte diferenciado en CRM. Permite cuantificar cuántos se pierden por tasación baja en Usados y habilitar un flujo de rescate con contraoferta de beneficios.
         <div class="s-author">🖥 CRM — Propuesta</div>
       </div>
@@ -358,12 +362,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
     <div class="cell-head"><span class="cell-seg">PLATA Usados</span><span class="cell-cnt" id="cnt-crm-plata">2</span></div>
     <div class="notes-wrap" id="notes-crm-plata">
       <div class="sticky s-plata">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         ✅ Segmento Plata Usados identificado en CRM.<br>Automatizar secuencia omnicanal: Paula IA (WhatsApp) → asignación ejecutivo → email. Activar protocolo de 3 intentos con tiempos definidos antes de descartar como "No Contesta".
         <div class="s-author">🖥 CRM — Estado actual</div>
       </div>
       <div class="sticky s-plata">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         Journey de recuperación en CRM para "No Contesta" en Plata Usados: reactivar a los 15 y 30 días con mensaje personalizado sobre su auto en parte de pago. Muchos clientes Usados retoman el contacto en ventanas posteriores.
         <div class="s-author">🖥 CRM — Propuesta</div>
       </div>
@@ -375,12 +379,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
     <div class="cell-head"><span class="cell-seg">BRONCE Usados</span><span class="cell-cnt" id="cnt-crm-bronce">2</span></div>
     <div class="notes-wrap" id="notes-crm-bronce">
       <div class="sticky s-bronce">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         ✅ Segmento Bronce Usados identificado en CRM (369 leads — mayor volumen en Usados).<br>Activar Paula IA como primer contacto automático. Libera capacidad del ejecutivo para dar seguimiento post-calificación, donde ocurre el quiebre (22.8% calif. → 3.8% cierre).
         <div class="s-author">🖥 CRM — Estado actual</div>
       </div>
       <div class="sticky s-bronce">
-        <button class="del-btn" onclick="del(this)">×</button>
+        <div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>
         Alerta post-calificación Bronce Usados: notificar al ejecutivo cuando un lead calificado lleva +3 días sin avance. Con 16.7% Cal→Venta, cada calificado perdido sin seguimiento es una fuga crítica en el segmento de mayor volumen.
         <div class="s-author">🖥 CRM — Propuesta</div>
       </div>
@@ -391,15 +395,24 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
 </div>
 </div>
 
+<!-- MODAL (agregar + editar) -->
 <div class="modal-bg" id="modal_bg">
   <div class="modal">
+    <div id="modal_badge" class="modal-mode-badge badge-add">+ Nueva tarjeta</div>
     <h3 id="modal_title">Agregar propuesta</h3>
-    <p id="modal_sub">Escribe tu idea para Usados y tu nombre para que el equipo sepa quién la propone.</p>
-    <textarea id="note_text" placeholder="Escribe tu propuesta aquí..."></textarea>
-    <input type="text" id="note_author" placeholder="Tu nombre y área (ej: Daniela Godoy · Marketing)">
+    <p id="modal_sub">Escribe tu idea y tu nombre para que el equipo sepa quién la propone.</p>
+    <div class="field">
+      <label>Propuesta</label>
+      <textarea id="note_text" placeholder="Escribe tu propuesta aquí..."></textarea>
+    </div>
+    <div class="field">
+      <label>Tu nombre y área</label>
+      <input type="text" id="note_author" placeholder="ej: Daniela Godoy · Marketing">
+    </div>
     <div class="modal-ft">
+      <span class="modal-hint">Ctrl+Enter para guardar · Esc para cerrar</span>
       <button class="btn" onclick="close_modal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="add_note()">Agregar ✓</button>
+      <button class="btn btn-primary" id="save_btn" onclick="save_note()">Agregar ✓</button>
     </div>
   </div>
 </div>
@@ -407,61 +420,123 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
 <script>
 const ROW_LABELS={politica:'Política Comercial',marketing:'Marketing y Exp. Cliente',crm:'CRM'};
 const SEG_LABELS={vip:'VIP Usados',oro:'ORO Usados',plata:'PLATA Usados',bronce:'BRONCE Usados'};
-let _row=null,_seg=null;
+let _row=null, _seg=null, _editNote=null;
 
+/* ── ABRIR MODAL: nueva tarjeta ── */
 function open_modal(row,seg){
-  _row=row;_seg=seg;
-  document.getElementById('modal_title').textContent=`Agregar propuesta — ${ROW_LABELS[row]} · ${SEG_LABELS[seg]}`;
+  _row=row; _seg=seg; _editNote=null;
+  document.getElementById('modal_badge').textContent='+ Nueva tarjeta';
+  document.getElementById('modal_badge').className='modal-mode-badge badge-add';
+  document.getElementById('modal_title').textContent=`Nueva propuesta — ${ROW_LABELS[row]} · ${SEG_LABELS[seg]}`;
+  document.getElementById('modal_sub').textContent='Escribe tu idea y tu nombre para que el equipo sepa quién la propone.';
+  document.getElementById('save_btn').textContent='Agregar ✓';
   document.getElementById('note_text').value='';
   document.getElementById('note_author').value='';
   document.getElementById('modal_bg').classList.add('open');
   document.getElementById('note_text').focus();
 }
+
+/* ── ABRIR MODAL: editar tarjeta existente ── */
+function open_edit(btn){
+  const sticky=btn.closest('.sticky');
+  const cell=sticky.closest('.board-cell');
+  _row=cell.dataset.row; _seg=cell.dataset.seg; _editNote=sticky;
+
+  /* extraer autor */
+  const authorEl=sticky.querySelector('.s-author');
+  const authorText=authorEl ? authorEl.innerText.trim() : '';
+
+  /* extraer texto: clonar, quitar actions y autor, convertir <br> → \n */
+  const clone=sticky.cloneNode(true);
+  clone.querySelector('.sticky-actions')?.remove();
+  clone.querySelector('.s-author')?.remove();
+  clone.querySelectorAll('br').forEach(br=>br.replaceWith('\n'));
+  const contentText=clone.innerText.replace(/\n{3,}/g,'\n\n').trim();
+
+  document.getElementById('modal_badge').textContent='✏ Editando tarjeta';
+  document.getElementById('modal_badge').className='modal-mode-badge badge-edit';
+  document.getElementById('modal_title').textContent=`Editar — ${ROW_LABELS[_row]} · ${SEG_LABELS[_seg]}`;
+  document.getElementById('modal_sub').textContent='Modifica el texto o el responsable de esta tarjeta.';
+  document.getElementById('save_btn').textContent='Guardar cambios ✓';
+  document.getElementById('note_text').value=contentText;
+  document.getElementById('note_author').value=authorText;
+  document.getElementById('modal_bg').classList.add('open');
+  document.getElementById('note_text').focus();
+  document.getElementById('note_text').select();
+}
+
+/* ── CERRAR MODAL ── */
 function close_modal(){
   document.getElementById('modal_bg').classList.remove('open');
-  _row=null;_seg=null;
+  document.getElementById('save_btn').textContent='Agregar ✓';
+  _row=null; _seg=null; _editNote=null;
 }
-function add_note(){
+
+/* ── GUARDAR (nuevo o edición) ── */
+function save_note(){
   const txt=document.getElementById('note_text').value.trim();
   const auth=document.getElementById('note_author').value.trim()||'Equipo';
   if(!txt)return;
-  const wrap=document.getElementById(`notes-${_row}-${_seg}`);
-  const d=document.createElement('div');
-  d.className='sticky s-new';
-  d.innerHTML=`<button class="del-btn" onclick="del(this)">×</button>${escHtml(txt)}<div class="s-author">💬 ${escHtml(auth)}</div>`;
-  wrap.appendChild(d);
-  update_cnt(_row,_seg);
+
+  if(_editNote){
+    /* modo edición: reemplazar contenido preservando clase de color */
+    const cls=_editNote.className;
+    _editNote.innerHTML=build_html(txt,auth);
+    _editNote.className=cls;
+    _editNote=null;
+  } else {
+    /* modo agregar: crear nueva tarjeta */
+    const wrap=document.getElementById(`notes-${_row}-${_seg}`);
+    const d=document.createElement('div');
+    d.className='sticky s-new';
+    d.innerHTML=build_html(txt,'👤 '+auth);
+    wrap.appendChild(d);
+    update_cnt(_row,_seg);
+  }
   close_modal();
 }
+
+/* ── CONSTRUIR HTML DE TARJETA ── */
+function build_html(txt,auth){
+  return `<div class="sticky-actions"><button class="act-btn act-edit" onclick="open_edit(this)" title="Editar">✏</button><button class="act-btn act-del" onclick="del(this)" title="Eliminar">×</button></div>${render(txt)}<div class="s-author">${escHtml(auth)}</div>`;
+}
+function render(txt){ return escHtml(txt).replace(/\n/g,'<br>'); }
+function escHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ── ELIMINAR ── */
 function del(btn){
   const s=btn.closest('.sticky');
   const cell=s.closest('.board-cell');
   s.remove();
   update_cnt(cell.dataset.row,cell.dataset.seg);
 }
+
+/* ── CONTADOR ── */
 function update_cnt(row,seg){
   const w=document.getElementById(`notes-${row}-${seg}`);
   const c=document.getElementById(`cnt-${row}-${seg}`);
-  if(w&&c)c.textContent=w.children.length;
+  if(w&&c) c.textContent=w.children.length;
 }
-function escHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
+/* ── ATAJOS DE TECLADO ── */
 document.getElementById('modal_bg').addEventListener('click',function(e){if(e.target===this)close_modal();});
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape')close_modal();
-  if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)&&_row)add_note();
+  if(e.key==='Escape') close_modal();
+  if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)&&(_row||_editNote)) save_note();
 });
 
+/* ── EXPORTAR TSV ── */
 function exportTSV(){
   let rows=[['ÁREA','SEGMENTO','PROPUESTA','RESPONSABLE/AUTOR']];
   ['politica','marketing','crm'].forEach(r=>{
     ['vip','oro','plata','bronce'].forEach(s=>{
       const w=document.getElementById(`notes-${r}-${s}`);
-      if(w)w.querySelectorAll('.sticky').forEach(n=>{
+      if(w) w.querySelectorAll('.sticky').forEach(n=>{
         const clone=n.cloneNode(true);
-        clone.querySelector('.s-author')&&clone.querySelector('.s-author').remove();
-        clone.querySelector('.del-btn')&&clone.querySelector('.del-btn').remove();
-        const text=clone.innerText.replace(/\n/g,' ').replace(/×/g,'').trim();
+        clone.querySelector('.sticky-actions')?.remove();
+        clone.querySelector('.s-author')?.remove();
+        clone.querySelectorAll('br').forEach(br=>br.replaceWith(' '));
+        const text=clone.innerText.trim();
         const auth=(n.querySelector('.s-author')||{}).innerText||'';
         rows.push([ROW_LABELS[r],SEG_LABELS[s],text,auth]);
       });
