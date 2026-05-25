@@ -141,8 +141,20 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
 .modal-ft{margin-top:14px;display:flex;gap:8px;justify-content:flex-end;align-items:center;}
 .modal-hint{font-size:9px;color:#bbb;margin-right:auto;}
 
+/* TOAST de confirmación */
+.toast{
+  position:fixed;bottom:20px;right:20px;
+  background:#1a1a2e;color:white;
+  padding:8px 16px;border-radius:6px;font-size:11px;
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+  opacity:0;transform:translateY(8px);
+  transition:opacity .2s,transform .2s;
+  pointer-events:none;z-index:300;
+}
+.toast.show{opacity:1;transform:translateY(0);}
+
 @media print{
-  .toolbar,.modal-bg,.sticky-actions,.add-btn{display:none!important;}
+  .toolbar,.modal-bg,.sticky-actions,.add-btn,.toast{display:none!important;}
   .board-wrap{padding:4px;}
   body{background:white;}
 }
@@ -215,6 +227,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
   </div>
   <button class="btn" onclick="window.print()">🖨 Imprimir</button>
   <button class="btn btn-primary" onclick="exportTSV()">⬇ Exportar ideas</button>
+  <button class="btn" style="color:#C62828;border-color:#FFCDD2;" onclick="reset_board()" title="Volver al tablero original">↺ Restablecer</button>
 </div>
 
 <div class="board-wrap">
@@ -457,9 +470,13 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e9e9e9;color:#333;}
   </div>
 </div>
 
+<div id="toast" class="toast"></div>
+
 <script>
 const ROW_LABELS={politica:'Política Comercial',marketing:'Marketing y Exp. Cliente',crm:'CRM'};
 const SEG_LABELS={vip:'VIP Usados',oro:'ORO Usados',plata:'PLATA Usados',bronce:'BRONCE Usados'};
+const ROWS=['politica','marketing','crm'], SEGS=['vip','oro','plata','bronce'];
+const STORAGE_KEY='tablero_fidelizacion_vpp_usados_v1';
 let _row=null, _seg=null, _editNote=null;
 
 /* ── LISTA DE USUARIOS (debe coincidir con las options del select) ── */
@@ -590,6 +607,7 @@ function save_note(){
     update_cnt(_row,_seg);
   }
   close_modal();
+  save_state();
 }
 
 /* ── CONSTRUIR HTML DE TARJETA ── */
@@ -605,6 +623,7 @@ function del(btn){
   const cell=s.closest('.board-cell');
   s.remove();
   update_cnt(cell.dataset.row,cell.dataset.seg);
+  save_state();
 }
 
 /* ── CONTADOR ── */
@@ -614,12 +633,60 @@ function update_cnt(row,seg){
   if(w&&c) c.textContent=w.children.length;
 }
 
+/* ── PERSISTENCIA EN LOCALSTORAGE ── */
+function save_state(){
+  const state={};
+  ROWS.forEach(r=>SEGS.forEach(s=>{
+    const w=document.getElementById(`notes-${r}-${s}`);
+    if(w) state[`${r}-${s}`]=w.innerHTML;
+  }));
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch(e){ console.warn('localStorage no disponible',e); }
+  show_toast('Cambios guardados ✓');
+}
+
+function load_state(){
+  const raw=localStorage.getItem(STORAGE_KEY);
+  if(!raw) return;
+  try{
+    const state=JSON.parse(raw);
+    Object.entries(state).forEach(([key,html])=>{
+      const w=document.getElementById(`notes-${key}`);
+      if(!w) return;
+      w.innerHTML=html;
+      const [r,s]=key.split('-');
+      update_cnt(r,s);
+    });
+  } catch(e){
+    console.warn('Error al restaurar estado',e);
+    localStorage.removeItem(STORAGE_KEY);
+  }
+}
+
+function reset_board(){
+  if(!confirm('¿Restablecer el tablero al estado original?\nSe perderán todos los cambios y propuestas agregadas.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+let _toast_timer=null;
+function show_toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(_toast_timer);
+  _toast_timer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
 /* ── ATAJOS DE TECLADO ── */
 document.getElementById('modal_bg').addEventListener('click',function(e){if(e.target===this)close_modal();});
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape') close_modal();
   if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)&&(_row||_editNote)) save_note();
 });
+
+/* ── CARGAR ESTADO AL INICIAR ── */
+document.addEventListener('DOMContentLoaded', load_state);
 
 /* ── EXPORTAR TSV ── */
 function exportTSV(){
